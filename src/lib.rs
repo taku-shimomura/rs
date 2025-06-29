@@ -26,7 +26,13 @@ pub struct Queue<T> {
     tail: Link<T>,
 }
 
-impl<T> Queue<T> {
+impl<T: Clone> Default for Queue<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<T: Clone> Queue<T> {
     pub fn new() -> Self {
         Self {
             head: None,
@@ -35,19 +41,36 @@ impl<T> Queue<T> {
     }
 
     pub fn enqueue(&mut self, val: T) {
-        todo!("未実装");
+        let new_node = Rc::new(RefCell::new(Node::new(val)));
+        if self.tail.is_none() {
+            self.head = Some(new_node.clone());
+            self.tail = Some(new_node);
+        } else {
+            let old_tail = self.tail.take().unwrap();
+            old_tail.borrow_mut().next = Some(new_node.clone());
+            new_node.borrow_mut().prev = Some(old_tail);
+            self.tail = Some(new_node);
+        }
     }
 
     pub fn dequeue(&mut self) {
-        todo!("未実装");
+        if let Some(head) = self.head.take() {
+            let mut head_borrow = head.borrow_mut();
+            if let Some(next) = head_borrow.next.take() {
+                next.borrow_mut().prev = None;
+                self.head = Some(next);
+            } else {
+                self.tail = None;
+            }
+        }
     }
 
-    pub fn front(&mut self) -> Option<T> {
-        todo!("未実装");
+    pub fn front(&self) -> Option<T> {
+        self.head.as_ref().map(|node| node.borrow().val.clone())
     }
 
-    pub fn back(&mut self) -> Option<T> {
-        todo!("未実装");
+    pub fn back(&self) -> Option<T> {
+        self.tail.as_ref().map(|node| node.borrow().val.clone())
     }
 }
 
@@ -57,7 +80,7 @@ mod tests {
 
     #[test]
     fn queue() {
-        let mut q = Queue::new();
+        let mut q = Queue::default();
         for i in 1..=5 {
             q.enqueue(i);
         }
