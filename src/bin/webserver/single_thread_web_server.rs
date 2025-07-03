@@ -22,7 +22,7 @@ fn handle_connection(mut strm: TcpStream) -> Result<()> {
         }
     }
 
-    Ok(())
+    strm.flush()
 }
 
 fn main() {
