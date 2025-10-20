@@ -3,8 +3,4 @@ name = "rs"
 version = "0.1.0"
 edition = "2024"
 
-[[bin]]
-name = "single"
-path = "src/bin/webserver/single_thread_web_server.rs"
-
 [dependencies]
